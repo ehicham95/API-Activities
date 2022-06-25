@@ -1,6 +1,8 @@
 using API.Middleware;
+using API.SignalR;
 using Application.Activities;
 using Application.Interfaces;
+using Application.Profiles;
 using Domain;
 using FluentValidation.AspNetCore;
 using Infrastructure.Photos;
@@ -20,6 +22,7 @@ using Microsoft.OpenApi.Models;
 using Persistence;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace API
 {
@@ -58,7 +61,8 @@ namespace API
             services.AddMediatR(typeof(List.Handler).Assembly);
             // this ligne is necessary to make Mediatr Functional
             services.AddAutoMapper(typeof(List.Handler));
-
+            // Adding SignalR is better than SignalRCore because it has more functions
+            services.AddSignalR();
             services.AddControllers(opt =>
             {
                 // Add authorization to all requests
@@ -94,11 +98,25 @@ namespace API
                     ValidateAudience = false,
                     ValidateIssuer = false
                 };
+                opt.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if(!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            services.AddScoped<IProfileReader, ProfileReader>();
             services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
         }
 
@@ -124,15 +142,17 @@ namespace API
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 // app.UseHsts();
+                // app.UseHttpsRedirection();
             }
 
-            // app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("CorsPolicy");
+            //app.UseSignalR(routes => { routes.MapHub<ChatHub>("/chat"); });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chat");
             });
         }
     }

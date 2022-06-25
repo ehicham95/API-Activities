@@ -10,10 +10,13 @@ namespace API.Controllers
 {
     public class ActivitiesController : BaseController
     {
+        // For best practices, it's better to wrap up filters in one object. The following parameters are used to make it easier to test in postman
         [HttpGet]
-        public async Task<ActionResult<List<ActivityDto>>> List()
+        public async Task<ActionResult<List.ActivitiesEnvelope>> List(int? limit,
+            int? offset, bool isGoing, bool isHost, DateTime? startDate)
         {
-            return await Mediator.Send(new List.Query());
+            return await Mediator.Send(new List.Query(limit,
+                offset, isGoing, isHost, startDate));
         }
 
         [HttpGet("{id}")]
