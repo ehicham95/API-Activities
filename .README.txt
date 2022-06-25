@@ -1,0 +1,14 @@
+When Persistence project is separated from API, use thise command:
+-dotnet ef migrations add InitialCreate -p "Target project" -s "Api project"
+
+
+To add secret token
+
+-In API.csproj add "<UserSecretsId>7B33C293-8184-4E92-F4F3-08DA552DC793<UserSecretsId>" (the value is a random Guid)
+- In CMD execute the following CMD dotnet user-secrets set "Tokenkey" "super secret key" -p "API/"
+- To check your token key execute the following cmd "dotnet user-secrets list -p API/API"
+
+To set up cloudinary in your porject:
+-Execute the following cmd : dotnet user-secrets set "Cloudinary:CloudName" "<cloud name>"
+-Execute the following cmd : dotnet user-secrets set "Cloudinary:ApiKey" "<apikey>"
+-Execute the following cmd : dotnet user-secrets set "Cloudinary:ApiSecret" "<api secret>"
