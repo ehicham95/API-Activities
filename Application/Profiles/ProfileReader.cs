@@ -34,8 +34,8 @@ namespace Application.Profiles
                 Image = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
                 Photos = user.Photos,
                 Bio = user.Bio,
-                FollowersCount = user.Followers.Count,
-                FollowingCount = user.Followings.Count,
+                FollowersCount = user.Followers.Count(),
+                FollowingCount = user.Followings.Count(),
             };
 
             if (currentUser.Followings.Any(x => x.TargetId == user.Id))
