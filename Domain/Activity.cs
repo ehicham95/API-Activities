@@ -15,5 +15,6 @@ namespace Domain
 
         // virtual key word is necessary for lazy loading (or simply classes that are mapped)
         public virtual ICollection<UserActivity> UserActivities { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }
